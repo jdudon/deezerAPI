@@ -30,6 +30,9 @@ const searchInput = document.getElementById("artist-input");
 const container = document.getElementById("results-container");
 const audio = document.getElementById("audio-player");
 
+// BONUS 4 
+// On garde une variable pour savoir quelle carte est en cours de lecture
+let currentPlayingCard = null;
 
 //* ===== ÉTAPE 2 : AJOUTER L'ÉVÉNEMENT SUR LE BOUTON =====
 // PSEUDO-CODE :
@@ -38,6 +41,12 @@ const audio = document.getElementById("audio-player");
 
 searchBtn.addEventListener("click", searchArtist);
 
+// BONUS 1 : Lancer la recherche avec la touche Entrée
+searchInput.addEventListener("keydown", function (event) {
+   if (event.key === "Enter") {
+      searchArtist();
+   }
+});
 
 //* ===== ÉTAPE 3 : FONCTION PRINCIPALE DE RECHERCHE =====
 // PSEUDO-CODE :
@@ -124,8 +133,27 @@ function afficherTrack(track) {
 
    // 4. Ajouter le click pour jouer la musique
    div.addEventListener("click", function () {
+      // BONUS 4 : si on reclique sur la même carte et que ça joue, on met en pause
+      if (currentPlayingCard === div && !audio.paused) {
+         audio.pause();
+         div.classList.remove("playing", "jaune");
+         currentPlayingCard = null;
+         // BONUS 4 : Permet de mettre la musique en pause en recliquant sur la carte
+         return;
+      }
       audio.src = track.preview;
       audio.play();
+      
+
+            // BONUS 3 : mettre en surbrillance la carte en cours de lecture
+      if (currentPlayingCard) {
+         currentPlayingCard.classList.remove("playing", "jaune");
+      }
+
+      div.classList.add("playing", "jaune");
+      currentPlayingCard = div;
+      // BONUS 3 : Utilise les classes .playing et .jaune pour styliser la carte active
+   // });
    });
 
    // 5. Ajouter la carte dans le container
