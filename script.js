@@ -96,3 +96,4 @@ async function searchArtist() {
 function afficherTrack(track) {
    // TODO
 }
+
