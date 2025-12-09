@@ -1,32 +1,29 @@
 /* ========================================
-   EXERCICE : DEEZER API + DOM (VERSION SIMPLE)
-   Avec fonction getTracks()
+   EXERCICE : DEEZER API + DOM MANIPULATION
+   VERSION SIMPLE (fetch avec .then)
    ======================================== */
 
 /* OBJECTIFS :
-   - Sélectionner des éléments du DOM
-   - Réagir à un clic utilisateur
-   - Récupérer des données depuis une API
-   - Afficher des résultats dynamiquement
-   - Jouer un extrait audio
+   1. Sélectionner des éléments du DOM
+   2. Ajouter un eventListener sur le bouton
+   3. Récupérer des données depuis l'API Deezer
+   4. Créer dynamiquement des cartes pour chaque chanson
+   5. Pouvoir cliquer sur une carte pour jouer un extrait
 */
 
 /* CONSEILS :
-   - Avance étape par étape
-   - Utilise console.log() souvent
-   - Regarde la console en cas d’erreur
-   - Teste dès qu’une étape fonctionne
+   - Teste chaque étape avec console.log()
+   - Regarde la console du navigateur pour voir les erreurs
+   - L'API Deezer retourne toujours AU MAX 25 résultats
 */
 
 
-//* ========================================
-//* ÉTAPE 1 : SÉLECTIONNER LES ÉLÉMENTS DU DOM
-//* ========================================
+//* ===== ÉTAPE 1 : SÉLECTIONNER LES ÉLÉMENTS DU DOM =====
 // PSEUDO-CODE :
-// 1. Récupérer le bouton de recherche
-// 2. Récupérer l’input de recherche
-// 3. Récupérer le conteneur des résultats
-// 4. Récupérer la balise <audio>
+// 1. Récupérer le bouton "Rechercher"
+// 2. Récupérer l'input où on tape le nom de l'artiste
+// 3. Récupérer la div où on va afficher les résultats
+// 4. Récupérer le lecteur audio
 
 const searchBtn = document.getElementById("search-btn");
 const searchInput = document.getElementById("artist-input");
@@ -34,97 +31,89 @@ const container = document.getElementById("results-container");
 const audio = document.getElementById("audio-player");
 
 
-//* ========================================
-//* ÉTAPE 2 : AJOUTER UN EVENT LISTENER
-//* ========================================
+//* ===== ÉTAPE 2 : AJOUTER L'ÉVÉNEMENT SUR LE BOUTON =====
 // PSEUDO-CODE :
-// 1. Écouter le clic sur le bouton
-// 2. Quand on clique, appeler searchArtist
-// ⚠️ Passer la fonction SANS parenthèses
+// Quand on clique sur le bouton :
+//    -> appeler la fonction searchArtist()
 
 searchBtn.addEventListener("click", searchArtist);
 
 
-//* ========================================
-//* ÉTAPE 3 : RÉCUPÉRER LES DONNÉES (API)
-//* ========================================
-// Cette fonction est une "boîte noire".
-// Elle reçoit un nom d’artiste
-// Elle renvoie une liste de chansons
-//
+//* ===== ÉTAPE 3 : FONCTION PRINCIPALE DE RECHERCHE =====
 // PSEUDO-CODE :
-// 1. Construire l’URL de l’API Deezer
-// 2. Envoyer la demande à l’API (fetch)
-// 3. Transformer la réponse en données JavaScript (json)
-// 4. Renvoyer la liste des chansons
+// 1. Effacer les anciens résultats (vider le container)
+// 2. Récupérer le texte écrit dans l'input
+// 3. Si l'input est vide : afficher un message et arrêter la fonction
+// 4. Construire l'URL de l'API avec le nom de l'artiste
+// 5. Utiliser fetch(apiUrl)
+// 6. Transformer la réponse en JSON
+// 7. Pour chaque morceau dans les données reçues :
+//       -> appeler afficherTrack(track)
+// 8. Gérer les erreurs avec .catch()
 
-async function getTracks(artistName) {
-   const API_URL = `https://corsproxy.io/?https://api.deezer.com/search?q=${artistName}`;
-
-   const response = await fetch(API_URL);
-   const data = await response.json();
-   console.log(data);
-
-   return data.data;
-}
-
-
-//* ========================================
-//* ÉTAPE 4 : LANCER UNE RECHERCHE
-//* ========================================
-// PSEUDO-CODE :
-// 1. Vider les anciens résultats
-// 2. Récupérer ce que l’utilisateur a tapé
-// 3. Si l’input est vide → afficher un message et arrêter
-// 4. Appeler getTracks() pour récupérer les chansons
-// 5. Pour chaque chanson, appeler afficherTrack()
-
-async function searchArtist() {
-   // 1. Nettoyer l'affichage
+function searchArtist() {
+   // 1. Vider les anciens résultats
    container.innerHTML = "";
 
-   // 2. Récupérer la saisie utilisateur
+   // 2. Récupérer le contenu de l'input
    const artistName = searchInput.value;
 
-   // 3. Vérifier la saisie
+   // 3. Vérifier si c'est vide
    if (artistName === "") {
       container.innerHTML = "<p>Écris un nom d’artiste</p>";
-      return;
+      return; // on arrête la fonction ici
    }
 
-   // 4. Appel à l’API (via getTracks)
-   const tracks = await getTracks(artistName);
+   // 4. Construire l'URL de l'API Deezer + proxy CORS
+   const apiUrl = `https://corsproxy.io/?https://api.deezer.com/search?q=${artistName}`;
 
-   // 5. Affichage des résultats
-   tracks.forEach(track => {
-      afficherTrack(track);
-   });
+   // 5–8. Utiliser fetch avec la syntaxe en .then()
+   fetch(apiUrl)
+      .then(function(response) {
+         // Transforme la réponse en JSON
+         return response.json();
+      })
+      .then(function(data) {
+         console.log("Données récupérées avec succès :", data);
+
+         // data.data contient le tableau de morceaux
+         data.data.forEach(function(track) {
+            afficherTrack(track);
+         });
+      })
+      .catch(function(error) {
+         console.error("Erreur lors de la récupération des données :", error);
+         container.innerHTML = "<p>Oups, erreur lors de la recherche. Réessaie plus tard.</p>";
+      });
 }
 
 
-//* ========================================
-//* ÉTAPE 5 : AFFICHER UNE CHANSON
-//* ========================================
+//* ===== ÉTAPE 4 : AFFICHER UN MORCEAU =====
 // PSEUDO-CODE :
-// 1. Vérifier si la chanson a un extrait audio (preview)
-// 2. Créer une carte (div)
-// 3. Ajouter le HTML (image, titre, artiste)
-// 4. Ajouter un clic sur la carte
-//    → jouer l’extrait audio
-// 5. Ajouter la carte au conteneur
+// 1. Si le morceau n'a PAS de preview audio -> ne rien afficher (return)
+// 2. Créer une div pour la carte (class "track-card")
+// 3. Ajouter à la carte :
+//       - la pochette de l'album
+//       - un overlay avec une icône Play
+//       - le titre du morceau
+//       - le nom de l'artiste
+// 4. Ajouter un eventListener "click" sur la carte :
+//       - changer la source de l'audio (audio.src = track.preview)
+//       - lancer la lecture (audio.play())
+// 5. Ajouter la carte dans le container
 
 function afficherTrack(track) {
-   // 1. Si pas de preview, on ignore la chanson
+   // 1. Certains morceaux n'ont pas d'extrait (preview)
    if (!track.preview) return;
 
-   // 2. Création de la carte
+   // 2. Créer la carte
    const div = document.createElement("div");
    div.className = "track-card";
 
-   // 3. Contenu de la carte
+   // 3. Remplir la carte avec le HTML
    div.innerHTML = `
       <div class="cover-container">
-         <img src="${track.album.cover_medium}" class="cover-image">
+         <img src="${track.album.cover_medium}" class="cover-image" alt="Pochette de l'album">
          <div class="play-overlay">
             <span class="play-icon">▶️</span>
          </div>
@@ -133,12 +122,12 @@ function afficherTrack(track) {
       <p>${track.artist.name}</p>
    `;
 
-   // 4. Interaction : lecture audio
+   // 4. Ajouter le click pour jouer la musique
    div.addEventListener("click", function () {
       audio.src = track.preview;
       audio.play();
    });
 
-   // 5. Ajout dans la page
+   // 5. Ajouter la carte dans le container
    container.appendChild(div);
 }
