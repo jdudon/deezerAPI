@@ -84,6 +84,8 @@ function searchArtist() {
       })
       .then(function(data) {
          console.log("Données récupérées avec succès :", data);
+      console.log(data);
+      
 
          // data.data contient le tableau de morceaux
          data.data.forEach(function(track) {
