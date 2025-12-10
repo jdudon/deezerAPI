@@ -121,6 +121,5 @@ function afficherTrack(track) {
 
 //* ===== BONUS : AJOUTER DES AMÉLIORATIONS (OPTIONNEL) =====
 // - Mettre en surbrillance (classe CSS) la carte en cours de lecture
-// - Ajouter un message si aucun résultat n'est trouvé
 // - Permettre de lancer une recherche en appuyant sur la touche "Entrée" dans l'input
 // - POssibilté de mettre pause sur la preview de la musique.
