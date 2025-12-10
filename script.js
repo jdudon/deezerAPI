@@ -140,11 +140,13 @@ function afficherTrack(track) {
          audio.pause();
          div.classList.remove("playing", "jaune");
          currentPlayingCard = null;
+
          // BONUS 4 : Permet de mettre la musique en pause en recliquant sur la carte
          return;
       }
       audio.src = track.preview;
       audio.play();
+
       
 
             // BONUS 3 : mettre en surbrillance la carte en cours de lecture
